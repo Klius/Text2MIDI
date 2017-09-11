@@ -2,6 +2,7 @@
 __author__ = 'Klius'
 #imports go here
 from midiutil import MIDIFile
+from random import random
 def createMIDI(input):
 	degrees  = [60, 62, 64, 65, 67, 69, 71, 72] # MIDI note number
 	track    = 0
@@ -21,10 +22,69 @@ def createMIDI(input):
 
 	with open("major-scale.mid", "wb") as output_file:
 		MyMIDI.writeFile(output_file)
+
+def createMIDI2(input):
+	# MIDI note number
+	track    = 0
+	channel  = 0
+	time     = 0   # In beats
+	duration = 1   # In beats
+	tempo    = 150  # In BPM
+	volume   = 100 # 0-127, as per the MIDI standard
+
+	MyMIDI = MIDIFile(1) # One track, defaults to format 1 (tempo track
+						 # automatically created)
+	MyMIDI.addTempo(track,time, tempo)
+
+	for group in input:
+		pitch = ord(group[0])
+		if(ord(group[1])<127):
+			volume = ord(group[1])
+		else:
+			volume = 127
+		
+		print(group)
+		MyMIDI.addNote(track, channel, pitch, time, duration, volume)
+		time += random()
+		
 	
-input = ["h","o","l","a"," ","a", "d", "r", "i"]
-inputToLetters = []
-for letter in input:
-	inputToLetters.append(ord(letter))
+	with open("major-scale.mid", "wb") as output_file:
+		MyMIDI.writeFile(output_file)
+
+def readFile(path):
+	with open(path) as file:
+		content = file.readlines()
 	
-createMIDI(inputToLetters)
+	content = [x.strip('\n') for x in content]
+	
+	return content
+	
+	
+def contentToNotes(content):
+	result = []
+	letterCount = 0
+	letterGroup = []
+	for line in content:
+		for letter in line:
+			letterGroup.append(letter)
+			letterCount +=1
+			if letterCount>1:
+				letterCount = 0
+				result.append(letterGroup)
+				letterGroup = []
+				
+	return result
+			
+		
+	
+
+file="LICENSE"
+content=readFile(file)
+createMIDI2(contentToNotes(content))
+
+#input = ["h","o","l","a"," ","a", "d", "r", "i"]
+#inputToLetters = []
+#for letter in input:
+#	inputToLetters.append(ord(letter))
+	
+#createMIDI(inputToLetters)
