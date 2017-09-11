@@ -28,6 +28,7 @@ def createMIDI2(input):
 	track    = 0
 	channel  = 0
 	time     = 0   # In beats
+	lastTime = 0
 	duration = 1   # In beats
 	tempo    = 150  # In BPM
 	volume   = 100 # 0-127, as per the MIDI standard
@@ -37,7 +38,10 @@ def createMIDI2(input):
 	MyMIDI.addTempo(track,time, tempo)
 
 	for group in input:
-		pitch = ord(group[0])
+		if(ord(group[0])<255):
+			pitch = ord(group[0])
+		else:
+			pitch = 127
 		if(ord(group[1])<127):
 			volume = ord(group[1])
 		else:
@@ -45,7 +49,17 @@ def createMIDI2(input):
 		
 		print(group)
 		MyMIDI.addNote(track, channel, pitch, time, duration, volume)
-		time += random()
+		if ord(group[0])%2 == 0:
+			time += 1
+			lastTime = 1
+		elif ord(group[0])%3==0:
+			time +=0.5
+			lastTime = 0.5
+		elif ord(group[0])%5==0:
+			time += 0.8
+			lastTime = 0.8
+		else:
+			time -= lastTime
 		
 	
 	with open("major-scale.mid", "wb") as output_file:
@@ -78,7 +92,7 @@ def contentToNotes(content):
 		
 	
 
-file="LICENSE"
+file="test.txt"
 content=readFile(file)
 createMIDI2(contentToNotes(content))
 
